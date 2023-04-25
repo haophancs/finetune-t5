@@ -7,7 +7,7 @@ vocab_size = 36_100
 input_sentence_size = None
 
 # Initialize a dataset
-dataset = data.load_dataset("viwiki", data_files="./data/vie_wikipedia_2021_1M/vie_wikipedia_2021_1M-sentences.txt")
+dataset = datasets.load_dataset("viwiki", data_files="./data/vie_wikipedia_2021_1M/vie_wikipedia_2021_1M-sentences.txt")
 
 tokenizer = SentencePieceUnigramTokenizer(unk_token="<unk>", eos_token="</s>", pad_token="<pad>")
 
