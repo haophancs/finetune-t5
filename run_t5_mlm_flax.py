@@ -880,14 +880,18 @@ def main():
         num_train_samples = len(tokenized_datasets["train"])
         # Avoid using jax.numpy here in case of TPU training
         train_samples_idx = np.random.permutation(np.arange(num_train_samples))
+        print('Generate batch splits...')
         train_batch_idx = generate_batch_splits(train_samples_idx, train_batch_size)
 
         # Gather the indexes for creating the batch and do a training step
         for step, batch_idx in enumerate(train_batch_idx):
             print(f'Epoch: {epoch} ---- Step:', step)
+            print('--- Create samples')
             samples = [tokenized_datasets["train"][int(idx)] for idx in batch_idx]
+            print('--- Create model inputs')
             model_inputs = data_collator(samples)
 
+            print('--- Create local host model inputs')
             local_host_model_inputs = {
                 key: np.split(model_inputs.data[key], num_of_hosts, axis=0)[current_host_idx]
                 for key, value in model_inputs.data.items()
@@ -909,7 +913,7 @@ def main():
                 if has_tensorboard and jax.process_index() == 0:
                     write_train_metric(summary_writer, train_metrics, train_time, cur_step)
 
-                epochs.write(
+                print(
                     f"Step... ({cur_step} | Loss: {train_metric['loss'].mean()}, Learning Rate:"
                     f" {train_metric['learning_rate'].mean()})"
                 )
@@ -939,7 +943,7 @@ def main():
                 eval_metrics = jax.tree_util.tree_map(jnp.mean, eval_metrics)
 
                 # Update progress bar
-                epochs.write(f"Step... ({cur_step} | Loss: {eval_metrics['loss']}, Acc: {eval_metrics['accuracy']})")
+                print(f"Step... ({cur_step} | Loss: {eval_metrics['loss']}, Acc: {eval_metrics['accuracy']})")
 
                 # Save metrics
                 if has_tensorboard and jax.process_index() == 0:
