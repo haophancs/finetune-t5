@@ -1,20 +1,25 @@
 import os
-import sys
+
 import datasets
+from transformers import T5Config
 
 from t5_tokenizer_model import SentencePieceUnigramTokenizer
 
 corpus = 'vie_wikipedia_2021'
 corpus_source_prefix = 'https://downloads.wortschatz-leipzig.de/corpora'
 
+pretrained_name = 'flan-t5-base'
+output_name = 'vi-flan-t5-base'
+
 os.makedirs('data', exist_ok=True)
-os.makedirs('outputs', exist_ok=True)
+os.makedirs(output_name, exist_ok=True)
 os.system(f'wget -P ./data/ {corpus_source_prefix}/{corpus}_1M.tar.gz')
 os.system(f'wget -P ./data/ {corpus_source_prefix}/{corpus}_300K.tar.gz')
 os.system(f'tar -xvzf ./data/{corpus}_1M.tar.gz -C ./data/')
 os.system(f'tar -xvzf ./data/{corpus}_300K.tar.gz -C ./data/')
 
-dataset = datasets.load_dataset("text", data_files={'train': f"./data/{corpus}_1M/{corpus}_1M-sentences.txt"}, split='train')
+dataset = datasets.load_dataset("text", data_files={'train': f"./data/{corpus}_1M/{corpus}_1M-sentences.txt"},
+                                split='train')
 tokenizer = SentencePieceUnigramTokenizer(unk_token="<unk>", eos_token="</s>", pad_token="<pad>")
 
 
@@ -34,4 +39,7 @@ tokenizer.train_from_iterator(
     show_progress=True,
 )
 # Save files to disk
-tokenizer.save("./outputs/tokenizer.json")
+tokenizer.save(f"./{output_name}/tokenizer.json")
+
+config = T5Config.from_pretrained(pretrained_name, vocab_size=tokenizer.get_vocab_size())
+config.save_pretrained(f"./{output_name}")

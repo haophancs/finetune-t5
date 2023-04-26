@@ -26,7 +26,6 @@ import os
 import sys
 import time
 from dataclasses import asdict, dataclass, field
-
 # You can also adapt this script on your own masked language modeling task. Pointers for this are left as comments.
 from enum import Enum
 from itertools import chain
@@ -45,7 +44,6 @@ from flax.training import train_state
 from flax.training.common_utils import get_metrics, onehot, shard
 from huggingface_hub import Repository, create_repo
 from tqdm import tqdm
-
 from transformers import (
     CONFIG_MAPPING,
     FLAX_MODEL_FOR_MASKED_LM_MAPPING,
@@ -60,7 +58,6 @@ from transformers import (
 )
 from transformers.models.t5.modeling_flax_t5 import shift_tokens_right
 from transformers.utils import get_full_repo_name, send_example_telemetry
-
 
 MODEL_CONFIG_CLASSES = list(FLAX_MODEL_FOR_MASKED_LM_MAPPING.keys())
 MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
@@ -508,10 +505,10 @@ def main():
     send_example_telemetry("run_t5_mlm", model_args, data_args, framework="flax")
 
     if (
-        os.path.exists(training_args.output_dir)
-        and os.listdir(training_args.output_dir)
-        and training_args.do_train
-        and not training_args.overwrite_output_dir
+            os.path.exists(training_args.output_dir)
+            and os.listdir(training_args.output_dir)
+            and training_args.do_train
+            and not training_args.overwrite_output_dir
     ):
         raise ValueError(
             f"Output directory ({training_args.output_dir}) already exists and is not empty."
@@ -691,7 +688,7 @@ def main():
             total_length = (total_length // expanded_inputs_length) * expanded_inputs_length
         # Split by chunks of max_len.
         result = {
-            k: [t[i : i + expanded_inputs_length] for i in range(0, total_length, expanded_inputs_length)]
+            k: [t[i: i + expanded_inputs_length] for i in range(0, total_length, expanded_inputs_length)]
             for k, t in concatenated_examples.items()
         }
         return result
