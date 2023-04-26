@@ -26,6 +26,7 @@ import os
 import sys
 import time
 from dataclasses import asdict, dataclass, field
+
 # You can also adapt this script on your own masked language modeling task. Pointers for this are left as comments.
 from enum import Enum
 from itertools import chain
@@ -44,6 +45,7 @@ from flax.training import train_state
 from flax.training.common_utils import get_metrics, onehot, shard
 from huggingface_hub import Repository, create_repo
 from tqdm import tqdm
+
 from transformers import (
     CONFIG_MAPPING,
     FLAX_MODEL_FOR_MASKED_LM_MAPPING,
@@ -58,6 +60,7 @@ from transformers import (
 )
 from transformers.models.t5.modeling_flax_t5 import shift_tokens_right
 from transformers.utils import get_full_repo_name, send_example_telemetry
+
 
 MODEL_CONFIG_CLASSES = list(FLAX_MODEL_FOR_MASKED_LM_MAPPING.keys())
 MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
@@ -505,10 +508,10 @@ def main():
     send_example_telemetry("run_t5_mlm", model_args, data_args, framework="flax")
 
     if (
-            os.path.exists(training_args.output_dir)
-            and os.listdir(training_args.output_dir)
-            and training_args.do_train
-            and not training_args.overwrite_output_dir
+        os.path.exists(training_args.output_dir)
+        and os.listdir(training_args.output_dir)
+        and training_args.do_train
+        and not training_args.overwrite_output_dir
     ):
         raise ValueError(
             f"Output directory ({training_args.output_dir}) already exists and is not empty."
@@ -688,7 +691,7 @@ def main():
             total_length = (total_length // expanded_inputs_length) * expanded_inputs_length
         # Split by chunks of max_len.
         result = {
-            k: [t[i: i + expanded_inputs_length] for i in range(0, total_length, expanded_inputs_length)]
+            k: [t[i : i + expanded_inputs_length] for i in range(0, total_length, expanded_inputs_length)]
             for k, t in concatenated_examples.items()
         }
         return result
@@ -868,7 +871,8 @@ def main():
     state = jax_utils.replicate(state)
 
     train_time = 0
-    for epoch in range(num_epochs):
+    epochs = tqdm(range(num_epochs), desc="Epoch ... ", position=0)
+    for epoch in epochs:
         # ======================== Training ================================
         train_start = time.time()
         train_metrics = []
@@ -883,23 +887,19 @@ def main():
         train_batch_idx = generate_batch_splits(train_samples_idx, train_batch_size)
 
         # Gather the indexes for creating the batch and do a training step
-        for step, batch_idx in enumerate(train_batch_idx):
-            print(f'Epoch: {epoch} ---- Step:', step)
+        for step, batch_idx in enumerate(tqdm(train_batch_idx, desc="Training...", position=1)):
             samples = [tokenized_datasets["train"][int(idx)] for idx in batch_idx]
             model_inputs = data_collator(samples)
 
-            print(f'--- Create local host model inputs items')
-            local_host_model_inputs = {}
-            for key in model_inputs.data:
-                local_host_model_inputs[key] = np.split(model_inputs.data[key], num_of_hosts, axis=0)[current_host_idx]
+            local_host_model_inputs = {
+                key: np.split(model_inputs.data[key], num_of_hosts, axis=0)[current_host_idx]
+                for key, value in model_inputs.data.items()
+            }
 
             # Model forward
-            print('Create model inputs')
             model_inputs = shard(local_host_model_inputs)
-            print('p train step')
             state, train_metric, dropout_rngs = p_train_step(state, model_inputs, dropout_rngs)
             train_metrics.append(train_metric)
-            print('train step done')
 
             cur_step = epoch * (num_train_samples // train_batch_size) + step
 
@@ -910,7 +910,7 @@ def main():
                 if has_tensorboard and jax.process_index() == 0:
                     write_train_metric(summary_writer, train_metrics, train_time, cur_step)
 
-                print(
+                epochs.write(
                     f"Step... ({cur_step} | Loss: {train_metric['loss'].mean()}, Learning Rate:"
                     f" {train_metric['learning_rate'].mean()})"
                 )
@@ -940,7 +940,7 @@ def main():
                 eval_metrics = jax.tree_util.tree_map(jnp.mean, eval_metrics)
 
                 # Update progress bar
-                print(f"Step... ({cur_step} | Loss: {eval_metrics['loss']}, Acc: {eval_metrics['accuracy']})")
+                epochs.write(f"Step... ({cur_step} | Loss: {eval_metrics['loss']}, Acc: {eval_metrics['accuracy']})")
 
                 # Save metrics
                 if has_tensorboard and jax.process_index() == 0:
