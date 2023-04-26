@@ -11,7 +11,9 @@ os.makedirs('data', exist_ok=True)
 os.makedirs('outputs', exist_ok=True)
 os.system(f'wget -P ./data/ {corpus_source_prefix}/{corpus}_1M.tar.gz')
 os.system(f'wget -P ./data/ {corpus_source_prefix}/{corpus}_300K.tar.gz')
-os.system(f'tar -xvzf ./data/{corpus}.tar.gz -C ./data/')
+os.system(f'tar -xvzf ./data/{corpus}_1M.tar.gz -C ./data/')
+os.system(f'tar -xvzf ./data/{corpus}_300K.tar.gz -C ./data/')
+
 dataset = datasets.load_dataset("text", data_files={'train': f"./data/{corpus}_1M/{corpus}_1M-sentences.txt"}, split='train')
 tokenizer = SentencePieceUnigramTokenizer(unk_token="<unk>", eos_token="</s>", pad_token="<pad>")
 
