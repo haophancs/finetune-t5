@@ -4,10 +4,12 @@ import datasets
 
 from t5_tokenizer_model import SentencePieceUnigramTokenizer
 
-corpus = 'vie_wikipedia_2021_1M'
+corpus = 'vie_wikipedia_2021_100K'
+corpus_source_prefix = 'https://downloads.wortschatz-leipzig.de/corpora'
+
 os.makedirs('data', exist_ok=True)
 os.makedirs('outputs', exist_ok=True)
-os.system(f'wget -P ./data/ https://downloads.wortschatz-leipzig.de/corpora/{corpus}.tar.gz')
+os.system(f'wget -P ./data/ {corpus_source_prefix}/{corpus}.tar.gz')
 os.system(f'tar -xvzf ./data/{corpus}.tar.gz -C ./data/')
 dataset = datasets.load_dataset("text", data_files={'train': f"./data/{corpus}/{corpus}-sentences.txt"}, split='train')
 tokenizer = SentencePieceUnigramTokenizer(unk_token="<unk>", eos_token="</s>", pad_token="<pad>")
