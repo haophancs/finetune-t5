@@ -8,7 +8,7 @@ from t5_tokenizer_model import SentencePieceUnigramTokenizer
 corpus = 'vie_wikipedia_2021'
 corpus_source_prefix = 'https://downloads.wortschatz-leipzig.de/corpora'
 
-pretrained_name = 'flan-t5-base'
+pretrained_name = 'google/flan-t5-base'
 output_name = 'vi-flan-t5-base'
 
 os.makedirs('data', exist_ok=True)
