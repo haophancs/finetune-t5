@@ -12,7 +12,7 @@ pretrained_name = 'google/flan-t5-base'
 output_name = 'vi-flan-t5-base'
 
 os.makedirs('data', exist_ok=True)
-os.makedirs(output_name, exist_ok=True)
+os.makedirs(os.path.join('outputs', output_name), exist_ok=True)
 os.system(f'wget -P ./data/ {corpus_source_prefix}/{corpus}_1M.tar.gz')
 os.system(f'wget -P ./data/ {corpus_source_prefix}/{corpus}_300K.tar.gz')
 os.system(f'tar -xvzf ./data/{corpus}_1M.tar.gz -C ./data/')
@@ -39,7 +39,7 @@ tokenizer.train_from_iterator(
     show_progress=True,
 )
 # Save files to disk
-tokenizer.save(f"./{output_name}/tokenizer.json")
+tokenizer.save(f"./outputs/{output_name}/tokenizer.json")
 
 config = T5Config.from_pretrained(pretrained_name, vocab_size=tokenizer.get_vocab_size())
-config.save_pretrained(f"./{output_name}")
+config.save_pretrained(f"./outputs/{output_name}")
