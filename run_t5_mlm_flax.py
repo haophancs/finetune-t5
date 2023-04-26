@@ -893,13 +893,13 @@ def main():
             for key in model_inputs.data:
                 local_host_model_inputs[key] = np.split(model_inputs.data[key], num_of_hosts, axis=0)[current_host_idx]
 
-            print('what the fuck?')
             # Model forward
-            print('-- Model forward...', end='')
+            print('Create model inputs')
             model_inputs = shard(local_host_model_inputs)
+            print('p train step')
             state, train_metric, dropout_rngs = p_train_step(state, model_inputs, dropout_rngs)
             train_metrics.append(train_metric)
-            print('done!')
+            print('train step done')
 
             cur_step = epoch * (num_train_samples // train_batch_size) + step
 
