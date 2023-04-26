@@ -886,14 +886,13 @@ def main():
         # Gather the indexes for creating the batch and do a training step
         for step, batch_idx in enumerate(train_batch_idx):
             print(f'Epoch: {epoch} ---- Step:', step)
-            print('--- Create samples')
             samples = [tokenized_datasets["train"][int(idx)] for idx in batch_idx]
-            print('--- Create model inputs')
             model_inputs = data_collator(samples)
 
-            print(f'--- Create local host model inputs (total {len(model_inputs.data)}) items')
+            print(f'--- Create local host model inputs items')
             local_host_model_inputs = {}
             for key in model_inputs.data:
+                print(model_inputs.data[key].shape)
                 local_host_model_inputs[key] = np.split(model_inputs.data[key], num_of_hosts, axis=0)[current_host_idx]
 
             # Model forward
