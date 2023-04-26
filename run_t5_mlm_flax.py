@@ -891,10 +891,9 @@ def main():
             print(f'--- Create local host model inputs items')
             local_host_model_inputs = {}
             for key in model_inputs.data:
-                print(model_inputs.data[key].shape)
                 local_host_model_inputs[key] = np.split(model_inputs.data[key], num_of_hosts, axis=0)[current_host_idx]
-                print('brrr')
 
+            print('what the fuck?')
             # Model forward
             print('-- Model forward...', end='')
             model_inputs = shard(local_host_model_inputs)
