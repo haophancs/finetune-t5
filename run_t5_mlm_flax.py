@@ -868,8 +868,7 @@ def main():
     state = jax_utils.replicate(state)
 
     train_time = 0
-    epochs = tqdm(range(num_epochs), desc="Epoch ... ", position=0)
-    for epoch in epochs:
+    for epoch in range(num_epochs):
         # ======================== Training ================================
         train_start = time.time()
         train_metrics = []
@@ -884,7 +883,8 @@ def main():
         train_batch_idx = generate_batch_splits(train_samples_idx, train_batch_size)
 
         # Gather the indexes for creating the batch and do a training step
-        for step, batch_idx in enumerate(tqdm(train_batch_idx, desc="Training...", position=1)):
+        for step, batch_idx in enumerate(train_batch_idx):
+            print(f'Epoch: {epoch} ---- Step:', step)
             samples = [tokenized_datasets["train"][int(idx)] for idx in batch_idx]
             model_inputs = data_collator(samples)
 
@@ -894,9 +894,11 @@ def main():
             }
 
             # Model forward
+            print('-- Model forward...', end='')
             model_inputs = shard(local_host_model_inputs)
             state, train_metric, dropout_rngs = p_train_step(state, model_inputs, dropout_rngs)
             train_metrics.append(train_metric)
+            print('done!')
 
             cur_step = epoch * (num_train_samples // train_batch_size) + step
 

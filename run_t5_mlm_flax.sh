@@ -6,8 +6,8 @@ python run_t5_mlm_flax.py \
 --train_file="./data/vie_wikipedia_2021_1M/vie_wikipedia_2021_1M-sentences.txt" \
 --validation_file="./data/vie_wikipedia_2021_300K/vie_wikipedia_2021_300K-sentences.txt" \
 --max_seq_length="512" \
---per_device_train_batch_size="32" \
---per_device_eval_batch_size="32" \
+--per_device_train_batch_size="16" \
+--per_device_eval_batch_size="16" \
 --adafactor \
 --learning_rate="0.005" \
 --weight_decay="0.001" \
