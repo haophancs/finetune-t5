@@ -889,7 +889,7 @@ def main():
             model_inputs = data_collator(samples)
 
             local_host_model_inputs = {}
-            for key, value in tqdm(list(model_inputs.data.keys()), desc="Creating local host model inputs... ", position=2):
+            for key in tqdm(list(model_inputs.data.keys()), desc="Creating local host model inputs... ", position=2):
                 local_host_model_inputs[key] = np.split(model_inputs.data[key], num_of_hosts, axis=0)[current_host_idx]
 
             # Model forward
