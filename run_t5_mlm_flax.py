@@ -888,9 +888,11 @@ def main():
             samples = [tokenized_datasets["train"][int(idx)] for idx in batch_idx]
             model_inputs = data_collator(samples)
 
-            local_host_model_inputs = {}
-            for key in tqdm(list(model_inputs.data.keys()), desc="Creating local host model inputs... ", position=2):
-                local_host_model_inputs[key] = np.split(model_inputs.data[key], num_of_hosts, axis=0)[current_host_idx]
+            print(len(model_inputs.data.items()))
+            local_host_model_inputs = {
+                key: np.split(model_inputs.data[key], num_of_hosts, axis=0)[current_host_idx]
+                for key, value in model_inputs.data.items()
+            }
 
             # Model forward
             model_inputs = shard(local_host_model_inputs)
