@@ -880,7 +880,6 @@ def main():
         num_train_samples = len(tokenized_datasets["train"])
         # Avoid using jax.numpy here in case of TPU training
         train_samples_idx = np.random.permutation(np.arange(num_train_samples))
-        print('Generate batch splits...')
         train_batch_idx = generate_batch_splits(train_samples_idx, train_batch_size)
 
         # Gather the indexes for creating the batch and do a training step
@@ -894,6 +893,7 @@ def main():
             for key in model_inputs.data:
                 print(model_inputs.data[key].shape)
                 local_host_model_inputs[key] = np.split(model_inputs.data[key], num_of_hosts, axis=0)[current_host_idx]
+                print('brrr')
 
             # Model forward
             print('-- Model forward...', end='')
