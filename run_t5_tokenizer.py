@@ -2,6 +2,7 @@ import os
 
 import datasets
 from transformers import T5Config
+from underthesea import sent_tokenize, text_normalize, word_tokenize
 
 from t5_tokenizer_model import SentencePieceUnigramTokenizer
 
