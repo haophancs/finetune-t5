@@ -21,13 +21,6 @@ os.system(f'tar -xvzf ./data/{corpus}_100K.tar.gz -C ./data/')
 dataset = datasets.load_dataset("text",
                                 data_files={'train': f"./data/{corpus}_300K/{corpus}_300K-sentences.txt"},
                                 split='train')
-datasets.map(
-        tokenize_function,
-        batched=True,
-        num_proc=data_args.preprocessing_num_workers,
-        remove_columns=column_names,
-        load_from_cache_file=not data_args.overwrite_cache,
-    )
 
 tokenizer = SentencePieceUnigramTokenizer(unk_token="<unk>", eos_token="</s>", pad_token="<pad>")
 
